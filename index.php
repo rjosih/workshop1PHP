@@ -1,27 +1,30 @@
 <?php
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+require_once("Game.php");
+
 session_start();
 
-$whoIsPlaying = isset($_GET["player"]) ? $_GET["player"] : "player1";
-
-
-echo("PLAYER: " .$whoIsPlaying . "<br><br>");
-
-$totalSticks = 10;
-$takenSticks = isset($_GET["sticks"]) ? $_GET["sticks"] : 0;
-$sticksLeft = $totalSticks - $takenSticks;
-
-
-if($whoIsPlaying == "player1") {
-    $whoIsPlaying = "player2";
-} else {
-    $whoIsPlaying = "player1";
+//Sets the session if the game is not started yet, starts new gane with 10 sticks
+if(isset($_SESSION['game']) === false){
+  $_SESSION['game'] = new Game();
 }
 
-//Knappar som lägger till hur många stickor den aktiva spelaren drar
+$whoIsPlaying = $_SESSION['game']->getCurrentPlayer();
+$sticksLeft = $_SESSION['game']->getSticksLeft();
+
+
+echo("PLAYER: " . $whoIsPlaying . "<br><br>");
+
+
+//Knappar submittar hur många pinnar spelaren drar
+//needs to submit how many sticks the user wants to remove
 $sticksToTake = 
-"<a href='?sticks=".($takenSticks + 1)."&player=".($whoIsPlaying)."'><button>Ta 1 sticka</button></a>" .
-"<a href='?sticks=".($takenSticks + 2)."&player=".($whoIsPlaying)."'><button>Ta 2 stickor</button></a>" .
-"<a href='?sticks=".($takenSticks + 3)."&player=".($whoIsPlaying)."'><button>Ta 3 stickor</button></a>"
+"<input type='button' name='1' value='Ta 1 sticka'>" .
+"<input type='button' name='2' value='Ta 2 stickor'>" .
+"<input type='button' name='3' value='Ta 3 stickor'>"
 ;
 
 //Resets the game by resetting the URL
@@ -30,20 +33,7 @@ $startNewGame = "<a href='/'><button>Play again</button></a>";
 
 //Om det inte finns stickor kvar, presentera förloraren
 if($sticksLeft <= 0) {
-    echo $whoIsPlaying . " förlorade!" . $startNewGame;
+   echo $whoIsPlaying . " förlorade!" . $startNewGame;
 }else{
-  echo $sticksToTake . "<p>Sticks kvar: " . $sticksLeft . "</p>";
+  echo $sticksToTake . "<p>Sticks kvar: " . $_SESSION['game']->getSticksLeft() . "</p>";
 }
-
-
-
-//tre knappar med olika värden CHECK
-// text överst vem som spelar
-// Visar upp antal stickor som finns kvar CHECK
-
-
-
-//10 stickor
-//Välj antal stickor 1-3 spelare 1 
-//Välj antal stickor 1-3 spelare 2
-//Den som tar sista stickan förlorar
